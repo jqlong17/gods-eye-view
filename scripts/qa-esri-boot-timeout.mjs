@@ -2,7 +2,8 @@
 /**
  * Prove keyless/embed boot leaves the init splash when ArcGIS World Imagery
  * metadata never settles. Intercepts services.arcgisonline.com and hangs those
- * requests; expects OSM constructionFallback within ~20s without CESIUM_ION_TOKEN.
+ * requests (including the XYZ tile probe); expects OSM/CARTO constructionFallback
+ * within ~20s without CESIUM_ION_TOKEN.
  *
  *   node scripts/qa-esri-boot-timeout.mjs
  *   QA_BASE_URL=http://127.0.0.1:4173 node scripts/qa-esri-boot-timeout.mjs
@@ -47,15 +48,22 @@ page.on('console', (message) => {
 
 await page.setRequestInterception(true);
 let arcgisRequests = 0;
-let osmTiles = 0;
+let streetTiles = 0;
 page.on('request', (request) => {
   const url = request.url();
   if (url.includes('services.arcgisonline.com')) {
     arcgisRequests += 1;
-    // Never continue: hung MapServer/?f=json is the live failure mode.
+    // Never continue: hung MapServer/?f=json (and any XYZ probe) is the
+    // failure mode that must fall through to the keyless street basemap.
     return;
   }
-  if (url.includes('tile.openstreetmap.org')) osmTiles += 1;
+  if (
+    url.includes('basemaps.cartocdn.com') ||
+    url.includes('tile.openstreetmap.de') ||
+    url.includes('tile.openstreetmap.org')
+  ) {
+    streetTiles += 1;
+  }
   request.continue().catch(() => {});
 });
 
@@ -81,7 +89,7 @@ for (let i = 0; i < 25; i++) {
     };
   });
   if (snap.status && !/Initializing systems/i.test(snap.status)) leftInit = true;
-  if (leftInit && snap.hidden && snap.active === 'osm' && osmTiles > 0) {
+  if (leftInit && snap.hidden && snap.active === 'osm' && streetTiles > 0) {
     settled = snap;
     break;
   }
@@ -98,7 +106,7 @@ const checks = [
   ['left Initializing systems splash', leftInit],
   ['loading-screen hidden', Boolean(settled?.hidden)],
   ['active stack is osm', settled?.active === 'osm'],
-  ['OSM tiles requested', osmTiles > 0],
+  ['keyless street tiles requested (CARTO/OSM)', streetTiles > 0],
   ['ArcGIS was contacted then hung', arcgisRequests >= 1],
   ['MapStack reported Esri→OSM fallback', fallbackLog],
   ['settled within 20s', elapsed <= 20_000],
@@ -114,7 +122,7 @@ console.log(
     {
       elapsed,
       arcgisRequests,
-      osmTiles,
+      streetTiles,
       settled,
       shot,
       lastError: settled?.lastError ?? null,

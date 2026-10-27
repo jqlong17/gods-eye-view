@@ -276,6 +276,10 @@ async function main() {
           && /^\/ArcGIS\/rest\/services\/World_Imagery\/MapServer\/tile\/\d+\/\d+\/\d+$/.test(url.pathname))
         || (url.origin === 'https://tile.openstreetmap.org'
           && /^\/\d+\/\d+\/\d+\.png$/.test(url.pathname))
+        || (url.origin === 'https://basemaps.cartocdn.com'
+          && /^\/rastertiles\/voyager\/\d+\/\d+\/\d+\.png$/.test(url.pathname))
+        || (url.origin === 'https://tile.openstreetmap.de'
+          && /^\/\d+\/\d+\/\d+\.png$/.test(url.pathname))
       );
       if (OFFLINE_IMAGERY && knownImageryTile) {
         offlineImageryRequests++;

@@ -33,6 +33,11 @@ const PROVIDER_ORIGINS = Object.freeze([
   'https://services.arcgisonline.com',
   'https://server.arcgisonline.com',
   'https://tile.openstreetmap.org',
+  // Keyless OSM stack uses CARTO Voyager (and FOSSGIS osm.de as documented
+  // alternate) because tile.openstreetmap.org is blocked on some networks.
+  'https://basemaps.cartocdn.com',
+  'https://*.basemaps.cartocdn.com',
+  'https://tile.openstreetmap.de',
   'https://tiles.openfreemap.org',
   'https://gibs.earthdata.nasa.gov',
   'https://fonts.googleapis.com',

@@ -3,8 +3,13 @@ import assert from 'node:assert/strict';
 import * as Cesium from 'cesium';
 import {
   createEsriImagery,
+  createEsriTileTemplateImagery,
   createIonImagery,
+  createOsmImagery,
+  ESRI_WORLD_IMAGERY_TILE_URL,
   ESRI_WORLD_IMAGERY_URL,
+  KEYLESS_STREET_CREDIT,
+  KEYLESS_STREET_TILE_URL,
 } from './imagery.js';
 import {
   createWorldTerrain,
@@ -357,7 +362,11 @@ test('hung Esri World Imagery metadata rejects so OSM constructionFallback can r
   );
   const started = Date.now();
   await assert.rejects(
-    createEsriImagery({ timeoutMs: 40 }),
+    createEsriImagery({
+      timeoutMs: 40,
+      // Unit tests must not depend on live ArcGIS tile reachability.
+      probeTile: async () => false,
+    }),
     /Esri World Imagery metadata timed out after 40 ms/,
   );
   assert.ok(Date.now() - started < 1_000);
@@ -365,6 +374,34 @@ test('hung Esri World Imagery metadata rejects so OSM constructionFallback can r
   await Promise.resolve();
   await Promise.resolve();
   assert.equal(destroyed, 1);
+});
+
+test('hung Esri metadata keeps satellite when World Imagery XYZ still answers', async (t) => {
+  t.mock.method(
+    Cesium.ArcGisMapServerImageryProvider,
+    'fromUrl',
+    () => new Promise(() => {}),
+  );
+  const provider = await createEsriImagery({
+    timeoutMs: 40,
+    probeTile: async () => true,
+  });
+  assert.ok(provider instanceof Cesium.UrlTemplateImageryProvider);
+  assert.equal(provider.url, ESRI_WORLD_IMAGERY_TILE_URL);
+  assert.equal(
+    createEsriTileTemplateImagery().url,
+    ESRI_WORLD_IMAGERY_TILE_URL,
+  );
+});
+
+test('keyless OSM stack paints CARTO Voyager, not tile.openstreetmap.org', () => {
+  const provider = createOsmImagery();
+  assert.ok(provider instanceof Cesium.UrlTemplateImageryProvider);
+  assert.equal(provider.url, KEYLESS_STREET_TILE_URL);
+  assert.match(provider.url, /basemaps\.cartocdn\.com/);
+  assert.doesNotMatch(provider.url, /tile\.openstreetmap\.org/);
+  assert.match(KEYLESS_STREET_CREDIT, /OpenStreetMap/);
+  assert.match(KEYLESS_STREET_CREDIT, /CARTO/);
 });
 
 test('Esri imagery construction honors abort before the metadata deadline', async (t) => {
@@ -377,6 +414,7 @@ test('Esri imagery construction honors abort before the metadata deadline', asyn
   const pending = createEsriImagery({
     signal: abort.signal,
     timeoutMs: 5_000,
+    probeTile: async () => true,
   });
   abort.abort();
   await assert.rejects(pending, { name: 'AbortError' });
@@ -389,7 +427,14 @@ test('Esri imagery still returns when metadata arrives before the deadline', asy
     'fromUrl',
     async () => provider,
   );
-  assert.equal(await createEsriImagery({ timeoutMs: 1_000 }), provider);
+  assert.equal(
+    await createEsriImagery({
+      timeoutMs: 1_000,
+      probeTile: async () =>
+        assert.fail('probe must not run on metadata success'),
+    }),
+    provider,
+  );
 });
 
 test('hung keyless terrain falls back to flat ellipsoid within the deadline', async (t) => {
