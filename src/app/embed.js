@@ -243,8 +243,7 @@ export function installViews({
 
   // ?chrome=1 keeps layer docks / HUD while still allowing iframe embed.
   const params = new URLSearchParams(location?.search || '');
-  const keepChrome =
-    params.get('chrome') === '1' || params.get('ui') === '1';
+  const keepChrome = params.get('chrome') === '1' || params.get('ui') === '1';
   if (!keepChrome) {
     windowRef.document.body.classList.add('ui-embed');
     shell.setCleanView?.(true);
