@@ -1,8 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as Cesium from 'cesium';
-import { createIonImagery } from './imagery.js';
-import { createWorldTerrain, createKeylessTerrain } from './terrain.js';
+import {
+  createEsriImagery,
+  createIonImagery,
+  ESRI_WORLD_IMAGERY_URL,
+} from './imagery.js';
+import {
+  createWorldTerrain,
+  createKeylessTerrain,
+  KEYLESS_TERRAIN_TIMEOUT_MS,
+} from './terrain.js';
 import { createDefaultMapSources } from './defaultSources.js';
 
 test('Esri uses Re:Earth without keys and preserves ion terrain when configured', async () => {
@@ -326,4 +334,106 @@ test('unreachable keyless terrain falls back to flat terrain marked as a fallbac
   const result = await createKeylessTerrain();
   assert.ok(result.provider instanceof Cesium.EllipsoidTerrainProvider);
   assert.equal(result.fallback, true);
+});
+
+test('hung Esri World Imagery metadata rejects so OSM constructionFallback can run', async (t) => {
+  let resolveLate;
+  let destroyed = 0;
+  const lateProvider = {
+    destroy() {
+      destroyed += 1;
+    },
+  };
+  t.mock.method(
+    Cesium.ArcGisMapServerImageryProvider,
+    'fromUrl',
+    (url, options) => {
+      assert.equal(url, ESRI_WORLD_IMAGERY_URL);
+      assert.equal(options.enablePickFeatures, false);
+      return new Promise((resolve) => {
+        resolveLate = resolve;
+      });
+    },
+  );
+  const started = Date.now();
+  await assert.rejects(
+    createEsriImagery({ timeoutMs: 40 }),
+    /Esri World Imagery metadata timed out after 40 ms/,
+  );
+  assert.ok(Date.now() - started < 1_000);
+  resolveLate(lateProvider);
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(destroyed, 1);
+});
+
+test('Esri imagery construction honors abort before the metadata deadline', async (t) => {
+  const abort = new AbortController();
+  t.mock.method(
+    Cesium.ArcGisMapServerImageryProvider,
+    'fromUrl',
+    () => new Promise(() => {}),
+  );
+  const pending = createEsriImagery({
+    signal: abort.signal,
+    timeoutMs: 5_000,
+  });
+  abort.abort();
+  await assert.rejects(pending, { name: 'AbortError' });
+});
+
+test('Esri imagery still returns when metadata arrives before the deadline', async (t) => {
+  const provider = { id: 'esri-fixture' };
+  t.mock.method(
+    Cesium.ArcGisMapServerImageryProvider,
+    'fromUrl',
+    async () => provider,
+  );
+  assert.equal(await createEsriImagery({ timeoutMs: 1_000 }), provider);
+});
+
+test('hung keyless terrain falls back to flat ellipsoid within the deadline', async (t) => {
+  let resolveLate;
+  let destroyed = 0;
+  t.mock.method(
+    Cesium.CesiumTerrainProvider,
+    'fromUrl',
+    () =>
+      new Promise((resolve) => {
+        resolveLate = resolve;
+      }),
+  );
+  t.mock.method(console, 'warn', () => {});
+  const started = Date.now();
+  const result = await createKeylessTerrain({ timeoutMs: 40 });
+  assert.ok(Date.now() - started < 1_000);
+  assert.ok(result.provider instanceof Cesium.EllipsoidTerrainProvider);
+  assert.equal(result.fallback, true);
+  assert.equal(KEYLESS_TERRAIN_TIMEOUT_MS, 8_000);
+  resolveLate({
+    destroy() {
+      destroyed += 1;
+    },
+  });
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(destroyed, 1);
+});
+
+test('default Esri source still wires OSM construction and tile-failure fallbacks', () => {
+  const keyless = createDefaultMapSources();
+  const esri = keyless.sources.find(
+    ({ descriptor }) => descriptor.id === 'esri-imagery',
+  );
+  assert.equal(esri.imagery, createEsriImagery);
+  assert.deepEqual(esri.constructionFallback, {
+    id: 'osm',
+    message: 'Esri Satellite is unavailable; using OSM',
+  });
+  assert.deepEqual(esri.tileFailureFallback, {
+    id: 'osm',
+    threshold: 2,
+    message: 'Esri Satellite tile requests failed; using OSM',
+  });
+  assert.equal(keyless.defaultId, 'esri-imagery');
 });
