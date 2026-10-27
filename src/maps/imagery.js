@@ -17,30 +17,108 @@ export const ESRI_ATTRIBUTION_HTML =
  */
 export const ESRI_IMAGERY_TIMEOUT_MS = 8_000;
 
+/** How long to wait on one World Imagery XYZ probe after metadata fails. */
+export const ESRI_TILE_PROBE_TIMEOUT_MS = 3_000;
+
 export const ESRI_WORLD_IMAGERY_URL =
   'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer';
 
+/** Stable XYZ template (z/y/x) when MapServer metadata never arrives. */
+export const ESRI_WORLD_IMAGERY_TILE_URL = `${ESRI_WORLD_IMAGERY_URL}/tile/{z}/{y}/{x}`;
+
+export const ESRI_WORLD_IMAGERY_CREDIT =
+  'Powered by Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
+
+/**
+ * Official tile.openstreetmap.org is unreachable or blocked on some networks
+ * (notably parts of CN). FOSSGIS's tile.openstreetmap.de mirror serves the
+ * same slippy scheme with real map content and CORS, keyless.
+ *
+ * CARTO Voyager (`basemaps.cartocdn.com`) often answers HTTP 200 from CN but
+ * can return near-blank cream tiles from some egress paths — do not prefer it
+ * as the painted basemap without a content probe.
+ */
+export const KEYLESS_STREET_TILE_BASE = 'https://tile.openstreetmap.de/';
+
+export const KEYLESS_STREET_TILE_URL = `${KEYLESS_STREET_TILE_BASE}{z}/{x}/{y}.png`;
+
+export const KEYLESS_STREET_CREDIT =
+  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
+
+/** Documented alternate CDN (verify tile content — HTTP 200 alone is not enough). */
+export const KEYLESS_STREET_FALLBACK_TILE_URL =
+  'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+
 export function createOsmImagery() {
   return new Cesium.OpenStreetMapImageryProvider({
-    url: 'https://tile.openstreetmap.org/',
-    credit: '© OpenStreetMap contributors',
+    url: KEYLESS_STREET_TILE_BASE,
+    credit: KEYLESS_STREET_CREDIT,
   });
 }
 
 /**
- * Build Esri World Imagery, or reject when metadata/tiles never arrive.
+ * World Imagery without waiting on MapServer/?f=json. Tile order is z/y/x.
+ */
+export function createEsriTileTemplateImagery() {
+  return new Cesium.UrlTemplateImageryProvider({
+    url: ESRI_WORLD_IMAGERY_TILE_URL,
+    credit: ESRI_WORLD_IMAGERY_CREDIT,
+    maximumLevel: 23,
+    enablePickFeatures: false,
+  });
+}
+
+function isAbortError(error) {
+  return error?.name === 'AbortError';
+}
+
+/**
+ * Confirm one World Imagery XYZ tile answers before committing to the
+ * template provider. A hung or failed probe leaves constructionFallback free
+ * to take OSM (tile.openstreetmap.de).
  * @param {{ signal?: AbortSignal, timeoutMs?: number }} [options]
+ */
+export async function probeEsriWorldImageryTile({
+  signal,
+  timeoutMs = ESRI_TILE_PROBE_TIMEOUT_MS,
+} = {}) {
+  signal?.throwIfAborted();
+  const probe = AbortSignal.any([
+    AbortSignal.timeout(Math.max(0, Number(timeoutMs) || 0)),
+    ...(signal ? [signal] : []),
+  ]);
+  try {
+    const response = await fetch(`${ESRI_WORLD_IMAGERY_URL}/tile/0/0/0`, {
+      method: 'GET',
+      mode: 'cors',
+      signal: probe,
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Build Esri World Imagery, or reject when metadata/tiles never arrive.
+ * @param {{
+ *   signal?: AbortSignal,
+ *   timeoutMs?: number,
+ *   tileProbeTimeoutMs?: number,
+ *   probeTile?: typeof probeEsriWorldImageryTile,
+ * }} [options]
  */
 export async function createEsriImagery({
   signal,
   timeoutMs = ESRI_IMAGERY_TIMEOUT_MS,
+  tileProbeTimeoutMs = ESRI_TILE_PROBE_TIMEOUT_MS,
+  probeTile = probeEsriWorldImageryTile,
 } = {}) {
   signal?.throwIfAborted();
   const pending = Cesium.ArcGisMapServerImageryProvider.fromUrl(
     ESRI_WORLD_IMAGERY_URL,
     {
-      credit:
-        'Powered by Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
+      credit: ESRI_WORLD_IMAGERY_CREDIT,
       enablePickFeatures: false,
     },
   );
@@ -53,6 +131,19 @@ export async function createEsriImagery({
   } catch (error) {
     // A late fromUrl success must not leak a live provider after fallback.
     void Promise.resolve(pending).then(disposeProvider, () => {});
+    if (isAbortError(error) || signal?.aborted) throw error;
+    // Metadata hang/fail is common on some egress paths while XYZ tiles still
+    // answer. Probe one tile; if it works, keep satellite. Otherwise reject so
+    // the existing Esri → OSM constructionFallback (osm.de) can settle.
+    // `probeTile` is injectable so unit tests never hit the live ArcGIS CDN.
+    const tilesOk = await probeTile({
+      signal,
+      timeoutMs: tileProbeTimeoutMs,
+    });
+    if (signal?.aborted) {
+      throw signal.reason ?? new DOMException('Aborted', 'AbortError');
+    }
+    if (tilesOk) return createEsriTileTemplateImagery();
     throw error;
   }
 }
