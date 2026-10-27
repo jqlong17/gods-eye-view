@@ -19,6 +19,7 @@ import {
   t,
   translateKnown,
 } from '../i18n/index.js';
+import { layerSourceMeta } from '../data/layerSourceMeta.js';
 
 // Feed-state values are machine ids (QA hooks, CSS feed-* classes); only the
 // label translates.
@@ -45,7 +46,11 @@ const PANEL_GROUPS = [
       'flights',
       'military',
       'local-adsb',
+      'adsb-exchange',
       'ais-live-vessels',
+      'fishing-watch',
+      'ourairports',
+      'aviation-metar',
       'traffic',
       'transit',
       'bikeshare',
@@ -63,6 +68,8 @@ const PANEL_GROUPS = [
       'local-datacenters',
       'telegeography-submarine-cables',
       'local-dams',
+      'ioc-sea-level',
+      'argo-floats',
     ],
   },
   {
@@ -72,16 +79,23 @@ const PANEL_GROUPS = [
       'earthquakes',
       'local-firms',
       'fire-perimeters',
+      'gdacs',
+      'effis',
       'gnss-integrity',
+      'gpsjam',
       's2-ghostmaps',
+      'swpc-aurora',
     ],
   },
   {
     label: msg('Weather'),
     ids: [
       'air-quality',
+      'openaq',
+      'open-meteo',
       'wind',
       'weather-radar',
+      'rainviewer',
       'weather-satellite',
       'weather-lightning',
       'weather-cyclones',
@@ -89,7 +103,14 @@ const PANEL_GROUPS = [
   },
   {
     label: msg('Utilities'),
-    ids: ['directions', 'radio'],
+    ids: [
+      'directions',
+      'radio',
+      'gebco-bathymetry',
+      'emodnet-bathymetry',
+      'etopo-bathymetry',
+      'worldcover',
+    ],
   },
 ];
 const PANEL_ORDER = PANEL_GROUPS.flatMap(({ label, ids }) =>
@@ -221,6 +242,8 @@ export class LayerPanel {
     this._cancelRowControlsRefresh = null;
     this._recentImageryFactory = null;
     this._recentImageryPanel = null;
+    this._sourceFilterId = '';
+    this._sourceFilterSelect = null;
   }
   mount(container) {
     if (this._destroyed) return;
@@ -234,7 +257,53 @@ export class LayerPanel {
       setLayerParams: this.setLayerParams,
     });
     this._mountRecentImagery();
+    this._bindSourceFilter(container);
     this._renderToggles();
+  }
+
+  /** Wire the source filter select once per mount; filtering never clears layer state. */
+  _bindSourceFilter(container) {
+    const doc = container?.ownerDocument;
+    const select = doc?.getElementById?.('data-source-filter-select');
+    this._sourceFilterSelect = select || null;
+    if (!select) return;
+    this._syncSourceFilterOptions();
+    this._bind(select, 'change', () => {
+      this._sourceFilterId = String(select.value || '');
+      this._renderToggles();
+    });
+  }
+
+  _syncSourceFilterOptions() {
+    const select = this._sourceFilterSelect;
+    if (!select) return;
+    const layers = this.getAll().filter((layer) => layer.showInTogglePanel);
+    const byId = new Map();
+    for (const layer of layers) {
+      const meta = layerSourceMeta(layer);
+      if (!byId.has(meta.sourceId)) byId.set(meta.sourceId, meta.sourceLabel);
+    }
+    const previous = this._sourceFilterId;
+    select.textContent = '';
+    const all = document.createElement('option');
+    all.value = '';
+    all.textContent = t(msg('All sources'));
+    select.appendChild(all);
+    for (const [id, label] of [...byId.entries()].sort((a, b) =>
+      String(a[1]).localeCompare(String(b[1])),
+    )) {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = t(label);
+      select.appendChild(option);
+    }
+    if (previous && byId.has(previous)) {
+      select.value = previous;
+      this._sourceFilterId = previous;
+    } else {
+      select.value = '';
+      this._sourceFilterId = '';
+    }
   }
   /**
    * Host the Recent Imagery readout in its rail body, like the weather
@@ -281,8 +350,17 @@ export class LayerPanel {
     if (this._destroyed || !this._toggleContainer) return;
     this._releaseBindings();
     this._toggleContainer.innerHTML = '';
+    // Re-bind the source filter after _releaseBindings cleared its listener.
+    if (this._sourceFilterSelect) {
+      this._syncSourceFilterOptions();
+      this._bind(this._sourceFilterSelect, 'change', () => {
+        this._sourceFilterId = String(this._sourceFilterSelect.value || '');
+        this._renderToggles();
+      });
+    }
 
     const generation = this._generation;
+    const sourceFilter = this._sourceFilterId;
     const layers = this.getAll()
       .slice()
       .sort(
@@ -291,8 +369,12 @@ export class LayerPanel {
           (PANEL_POSITIONS.get(b.id) ?? PANEL_ORDER.length),
       );
     let previousGroup = '';
+    let visibleCount = 0;
     for (const layer of layers) {
       if (!layer.showInTogglePanel) continue;
+      const meta = layerSourceMeta(layer);
+      if (sourceFilter && meta.sourceId !== sourceFilter) continue;
+      visibleCount++;
       const group =
         PANEL_ORDER[PANEL_POSITIONS.get(layer.id)]?.label ??
         msg('Other layers');
@@ -422,6 +504,12 @@ export class LayerPanel {
       }
 
       this._toggleContainer.appendChild(row);
+    }
+    if (visibleCount === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'data-source-filter-empty';
+      empty.textContent = t(msg('No layers for this source'));
+      this._toggleContainer.appendChild(empty);
     }
     this._refreshWeatherPanel();
   }

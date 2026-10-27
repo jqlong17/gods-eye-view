@@ -74,6 +74,36 @@
   min-height: 0;
 }
 
+.data-source-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 10px 8px;
+  flex: 0 0 auto;
+}
+
+.data-source-filter-label {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.data-source-filter-select {
+  width: 100%;
+}
+
+.data-source-filter-empty {
+  margin: 8px 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+#data-panel.collapsed .data-source-filter {
+  display: none;
+}
+
 .data-toggle-list {
   display: flex;
   flex-direction: column;

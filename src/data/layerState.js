@@ -566,10 +566,11 @@ export const LAYER_STATE_TOKEN_RESERVATIONS =
  */
 export const LAYER_STATE_REGISTRY = Object.freeze([
   Object.freeze({
-    id: 'air-quality',
-    token: '4',
+    id: 'adsb-exchange',
+    token: '00',
     disposition: 'enabled-only',
   }),
+  Object.freeze({ id: 'air-quality', token: '4', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'ais-live-vessels',
     token: 'a',
@@ -578,6 +579,16 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
   Object.freeze({
     id: 'alpr-cameras',
     token: 'p',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'argo-floats',
+    token: '07',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'aviation-metar',
+    token: '06',
     disposition: 'enabled-only',
   }),
   Object.freeze({
@@ -599,9 +610,25 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
   }),
   Object.freeze({ id: 'directions', token: 'n', disposition: 'enabled-only' }),
   Object.freeze({ id: 'earthquakes', token: 'e', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'effis', token: '04', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'emodnet-bathymetry',
+    token: '0a',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'etopo-bathymetry',
+    token: '0b',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'fire-perimeters',
     token: '2',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({
+    id: 'fishing-watch',
+    token: '01',
     disposition: 'enabled-only',
   }),
   Object.freeze({
@@ -610,9 +637,21 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'flights',
   }),
+  Object.freeze({ id: 'gdacs', token: '8', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'gebco-bathymetry',
+    token: '02',
+    disposition: 'enabled-only',
+  }),
   Object.freeze({
     id: 'gnss-integrity',
     token: '3',
+    disposition: 'enabled-only',
+  }),
+  Object.freeze({ id: 'gpsjam', token: '0c', disposition: 'enabled-only' }),
+  Object.freeze({
+    id: 'ioc-sea-level',
+    token: '08',
     disposition: 'enabled-only',
   }),
   Object.freeze({ id: 'local-dams', token: 'q', disposition: 'enabled-only' }),
@@ -638,12 +677,16 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     token: 'i',
     disposition: 'enabled-only',
   }),
+  Object.freeze({ id: 'open-meteo', token: '6', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'openaq', token: '7', disposition: 'enabled-only' }),
+  Object.freeze({ id: 'ourairports', token: '9', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'radio',
     token: 'r',
     disposition: 'enabled+options',
     optionOwner: 'radio',
   }),
+  Object.freeze({ id: 'rainviewer', token: '03', disposition: 'enabled-only' }),
   Object.freeze({
     id: 'recent-imagery',
     token: '1',
@@ -671,6 +714,11 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     token: '0',
     disposition: 'enabled+options',
     optionOwner: 'street-level',
+  }),
+  Object.freeze({
+    id: 'swpc-aurora',
+    token: '09',
+    disposition: 'enabled-only',
   }),
   Object.freeze({
     id: 'telegeography-submarine-cables',
@@ -713,6 +761,7 @@ export const LAYER_STATE_REGISTRY = Object.freeze([
     disposition: 'enabled+options',
     optionOwner: 'wind',
   }),
+  Object.freeze({ id: 'worldcover', token: '05', disposition: 'enabled-only' }),
 ]);
 
 export const REGISTERED_LAYER_IDS = Object.freeze(

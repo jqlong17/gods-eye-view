@@ -185,6 +185,54 @@ export const DATA_CREDITS = [
     html: 'Keyless place search: <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon</a> (komoot)',
   },
   {
+    key: 'open-meteo-layer',
+    html: 'Weather samples: <a href="https://open-meteo.com/en/licence" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a> (CC BY 4.0)',
+  },
+  {
+    key: 'gdacs',
+    html: 'Disaster alerts: <a href="https://www.gdacs.org/" target="_blank" rel="noopener">GDACS</a>',
+  },
+  {
+    key: 'ourairports',
+    html: 'Airports: <a href="https://ourairports.com/" target="_blank" rel="noopener">OurAirports</a>',
+  },
+  {
+    key: 'gebco',
+    html: 'Bathymetry imagery: <a href="https://www.gebco.net/" target="_blank" rel="noopener">GEBCO</a>',
+  },
+  {
+    key: 'rainviewer',
+    html: 'Radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>',
+  },
+  {
+    key: 'effis',
+    html: 'Fire weather: <a href="https://effis.jrc.ec.europa.eu/" target="_blank" rel="noopener">EFFIS / Copernicus</a>',
+  },
+  {
+    key: 'aviation-metar',
+    html: 'METAR: <a href="https://aviationweather.gov/" target="_blank" rel="noopener">Aviation Weather Center</a>',
+  },
+  {
+    key: 'argo',
+    html: 'Ocean floats: <a href="https://argo.ucsd.edu/" target="_blank" rel="noopener">Argo</a> via Ifremer ERDDAP',
+  },
+  {
+    key: 'ioc-sea-level',
+    html: 'Tide gauges: <a href="https://www.ioc-sealevelmonitoring.org/" target="_blank" rel="noopener">IOC Sea Level Monitoring</a>',
+  },
+  {
+    key: 'swpc-aurora',
+    html: 'Aurora forecast: <a href="https://www.swpc.noaa.gov/" target="_blank" rel="noopener">NOAA SWPC</a>',
+  },
+  {
+    key: 'emodnet',
+    html: 'Bathymetry: <a href="https://emodnet.ec.europa.eu/en/bathymetry" target="_blank" rel="noopener">EMODnet Bathymetry</a>',
+  },
+  {
+    key: 'etopo',
+    html: 'Hillshade: <a href="https://www.ncei.noaa.gov/products/etopo-global-relief-model" target="_blank" rel="noopener">NOAA ETOPO</a>',
+  },
+  {
     key: 'open-meteo',
     html:
       'Cockpit current conditions: ' +

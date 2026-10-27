@@ -25,6 +25,23 @@ import { createApplicationAwareness } from './layers/militaryAwareness.js';
 import { createApplicationFirms } from './layers/firms.js';
 import { createApplicationEarthquakes } from './layers/earthquakes.js';
 import { createApplicationAirQuality } from './layers/airQuality.js';
+import { createApplicationOpenMeteo } from './layers/openMeteo.js';
+import { createApplicationOpenAq } from './layers/openaq.js';
+import { createApplicationGdacs } from './layers/gdacs.js';
+import { createApplicationOurAirports } from './layers/ourairports.js';
+import { createApplicationAdsbExchange } from './layers/adsbExchange.js';
+import { createApplicationFishingWatch } from './layers/fishingWatch.js';
+import { createApplicationGebco } from './layers/gebco.js';
+import { createApplicationRainViewer } from './layers/rainviewer.js';
+import { createApplicationEffis } from './layers/effis.js';
+import { createApplicationWorldCover } from './layers/worldcover.js';
+import { createApplicationAviationMetar } from './layers/aviationMetar.js';
+import { createApplicationArgo } from './layers/argo.js';
+import { createApplicationIocSeaLevel } from './layers/iocSeaLevel.js';
+import { createApplicationSwpcAurora } from './layers/swpcAurora.js';
+import { createApplicationEmodnet } from './layers/emodnet.js';
+import { createApplicationEtopo } from './layers/etopo.js';
+import { createApplicationGpsjam } from './layers/gpsjam.js';
 import { createApplicationFirePerimeters } from './layers/perimeters.js';
 import { createApplicationGnssIntegrity } from './layers/gnss.js';
 import { createApplicationGhostMaps } from './layers/ghostMaps.js';
@@ -121,6 +138,25 @@ export function createApplicationCatalog({
         }),
         createApplicationEarthquakes({ source: sources.earthquakes }),
         createApplicationAirQuality({ source: sources['air-quality'] }),
+        createApplicationOpenMeteo({ source: sources['open-meteo'] }),
+        createApplicationOpenAq({ source: sources.openaq }),
+        createApplicationGdacs({ source: sources.gdacs }),
+        createApplicationOurAirports({ source: sources.ourairports }),
+        createApplicationAdsbExchange({ source: sources['adsb-exchange'] }),
+        createApplicationFishingWatch({ source: sources['fishing-watch'] }),
+        createApplicationGebco({ source: sources['gebco-bathymetry'] }),
+        createApplicationRainViewer({ source: sources.rainviewer }),
+        createApplicationEffis({ source: sources.effis }),
+        createApplicationWorldCover({ source: sources.worldcover }),
+        createApplicationAviationMetar({
+          source: sources['aviation-metar'],
+        }),
+        createApplicationArgo({ source: sources['argo-floats'] }),
+        createApplicationIocSeaLevel({ source: sources['ioc-sea-level'] }),
+        createApplicationSwpcAurora({ source: sources['swpc-aurora'] }),
+        createApplicationEmodnet({ source: sources['emodnet-bathymetry'] }),
+        createApplicationEtopo({ source: sources['etopo-bathymetry'] }),
+        createApplicationGpsjam({ source: sources.gpsjam }),
         createApplicationFirePerimeters({
           source: sources['fire-perimeters'],
         }),

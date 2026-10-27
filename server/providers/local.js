@@ -29,6 +29,18 @@ import { gnssIntegrityProxy } from './gnssIntegrity.js';
 import { ghostMapsProxy } from './ghostMaps.js';
 import { cycloneProxy } from './cyclones.js';
 import { windProxy } from './wind.js';
+import { openMeteoProxy } from './openMeteo.js';
+import { openaqProxy } from './openaq.js';
+import { gdacsProxy } from './gdacs.js';
+import { ourAirportsProxy } from './ourairports.js';
+import { adsbExchangeProxy } from './adsbExchange.js';
+import { fishingWatchProxy } from './fishingWatch.js';
+import { rainViewerProxy } from './rainviewer.js';
+import { aviationMetarProxy } from './aviationMetar.js';
+import { argoProxy } from './argo.js';
+import { iocSeaLevelProxy } from './iocSeaLevel.js';
+import { swpcAuroraProxy } from './swpcAurora.js';
+import { etopoProxy } from './etopo.js';
 
 /**
  * Construct the local provider plugins in their established order.
@@ -66,6 +78,18 @@ function localProviderPlugins({ realtime, gemini } = {}) {
     firePerimetersProxy(),
     gnssIntegrityProxy(),
     ghostMapsProxy(),
+    openMeteoProxy(),
+    openaqProxy(),
+    gdacsProxy(),
+    ourAirportsProxy(),
+    adsbExchangeProxy(),
+    fishingWatchProxy(),
+    rainViewerProxy(),
+    aviationMetarProxy(),
+    argoProxy(),
+    iocSeaLevelProxy(),
+    swpcAuroraProxy(),
+    etopoProxy(),
     keySetupEndpoint(),
   ];
 }

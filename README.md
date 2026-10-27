@@ -415,6 +415,8 @@ Twenty layers and map sources. **Eighteen have a keyless path.** Some offer addi
 
 **Weather, keyless.** **Wind** animates 10 m forecast flow from NOAA GFS or ECMWF IFS, with an optional color field and a reading at map center. **Rain radar**, **Satellite clouds** and **Lightning density** are observations on one history timeline in the **WEATHER** panel (step back, **Play**, **Latest**); **Cyclone advisories** draw NHC and CPHC positions, forecast tracks and cones. On Google 3D Tiles the observed layers float above the city as translucent shells, sharpened around your view.
 
+**More keyless public layers.** Open-Meteo samples, GDACS alerts, OurAirports, RainViewer radar, EFFIS fire weather, Aviation METAR, Argo floats, IOC tide gauges, SWPC aurora, and GEBCO / EMODnet / ETOPO bathymetry overlays — filter DATA LAYERS by source in the panel. Registration-only feeds stay UNAVAILABLE stubs (see [DATA_SOURCES.md](DATA_SOURCES.md)); `npm run test:live-layers` hits the real upstreams.
+
 In the app, **Data Layers** groups them as Movement, Cameras, Infrastructure, Events, Weather and Utilities.
 
 **The basemap ladder — what each tier buys you:**
