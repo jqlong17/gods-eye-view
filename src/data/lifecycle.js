@@ -2269,6 +2269,9 @@ export class LayerLifecycle {
         name: entry.module.name,
         icon: entry.module.icon,
         source: entry.module.source,
+        // Optional stable source id/label for DATA LAYERS source filtering.
+        sourceId: entry.module.sourceId || null,
+        sourceLabel: entry.module.sourceLabel || null,
         showInTogglePanel: entry.module.showInTogglePanel !== false,
         // Registry id of the provider key this layer needs, if any (mirrors
         // showInTogglePanel). The layer reports stats.keyRequired while that

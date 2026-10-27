@@ -43,6 +43,23 @@ export const LAYER_NAME_KEYS = Object.freeze({
   'air-quality': msg('Air quality'),
   directions: msg('Directions'),
   'alpr-cameras': msg('ALPR Cameras'),
+  'open-meteo': msg('Open-Meteo weather'),
+  openaq: msg('OpenAQ air quality'),
+  gdacs: msg('GDACS disasters'),
+  ourairports: msg('OurAirports'),
+  'adsb-exchange': msg('ADS-B Exchange'),
+  'fishing-watch': msg('Global Fishing Watch'),
+  'gebco-bathymetry': msg('GEBCO bathymetry'),
+  rainviewer: msg('RainViewer radar'),
+  effis: msg('EFFIS fire weather'),
+  worldcover: msg('ESA WorldCover'),
+  'aviation-metar': msg('Aviation METAR'),
+  'argo-floats': msg('Argo floats'),
+  'ioc-sea-level': msg('IOC sea level'),
+  'swpc-aurora': msg('SWPC aurora'),
+  'emodnet-bathymetry': msg('EMODnet bathymetry'),
+  'etopo-bathymetry': msg('ETOPO hillshade'),
+  gpsjam: msg('GPSJAM'),
 });
 
 /** The layer panel's own English names, where they differ from the module's. */

@@ -442,3 +442,24 @@ NOAA density imagery with the raw GLM product.
 ## In-app attribution
 
 The required Google Maps / Cesium credit renders on the on-globe credit line (`#cesium-credits`, bottom-left) and must stay visible — including in clean-view and recording modes (the whole line, logo + "Google Maps" + the "Data attribution" link, stays on screen; only the GEV panels/HUD fade). The layer-specific credits (adsb.lol, adsbdb, TeleGeography, OSM datacenters/dams/roads, NASA FIRMS, CelesTrak, USGS, City of Austin, Fintraffic, GBFS, Radio Browser, OpenSky, AISStream) are registered into the expandable **"Data attribution"** popover on that credit line via `viewer.creditDisplay.addStaticCredit(new Cesium.Credit(html, /* showOnScreen */ false))` — see `src/data/dataCredits.js`. When you add a new data source, add its license and attribution to this file **and** append an entry to `DATA_CREDITS` in `src/data/dataCredits.js` so it surfaces in the app.
+
+## Batch public Earth layers (2026)
+
+Keyless DATA LAYERS added for local globe overlays (see also `npm run test:live-layers`):
+
+| Layer | Endpoint / product | License notes |
+| --- | --- | --- |
+| Open-Meteo weather | `api.open-meteo.com` via `/api/open-meteo` | CC BY 4.0 — credit Open-Meteo |
+| GDACS disasters | `gdacs.org` GeoJSON via `/api/gdacs` | GDACS public alerts |
+| OurAirports | OurAirports CSV (large + scheduled medium) via `/api/ourairports` | OurAirports data |
+| GEBCO bathymetry | `wms.gebco.net` WMS `GEBCO_LATEST` | GEBCO imagery attribution |
+| RainViewer radar | `api.rainviewer.com` + tile CDN via `/api/rainviewer` | RainViewer terms |
+| EFFIS fire weather | Copernicus EFFIS WMS `mf010.fwi` | EU open data notices |
+| Aviation METAR | `aviationweather.gov` via `/api/aviation-metar` | NWS/AWC public |
+| Argo floats | Ifremer ERDDAP ArgoFloats via `/api/argo` | Argo / Ifremer |
+| IOC sea level | IOC station list via `/api/ioc-sea-level` | IOC Sea Level Monitoring |
+| SWPC aurora | NOAA SWPC OVATION JSON via `/api/swpc-aurora` | NOAA public domain |
+| EMODnet bathymetry | `ows.emodnet-bathymetry.eu` WMS `mean_atlas_land` | EMODnet terms |
+| ETOPO hillshade | NOAA NGDC ImageServer exportImage via `/api/etopo/status` | NOAA public domain |
+
+UNAVAILABLE stubs (need registration / no keyless public feed): OpenAQ (`OPENAQ_API_KEY`), ADS-B Exchange (`ADSBX_API_KEY`), Global Fishing Watch (`GFW_API_TOKEN`), ESA WorldCover (Terrascope WMS unreachable), GPSJAM (no public JSON; use GNSS Integrity). Space-Track is not a layer — CelesTrak remains the TLE source.
