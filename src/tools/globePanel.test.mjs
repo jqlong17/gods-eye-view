@@ -74,11 +74,11 @@ test('the panel lets Street Level reach Mapillary from inside the embed', () => 
     assert.ok(allows(csp.connectDomains, url), `connect-src allows ${url}`);
     assert.ok(allows(csp.resourceDomains, url), `img-src allows ${url}`);
   }
-  // Keyless OSM stack / Esri fallback street tiles (CARTO + FOSSGIS alternate).
+  // Keyless OSM stack / Esri fallback street tiles (FOSSGIS + CARTO alternate).
   for (const url of [
+    'https://tile.openstreetmap.de/0/0/0.png',
     'https://basemaps.cartocdn.com/rastertiles/voyager/0/0/0.png',
     'https://a.basemaps.cartocdn.com/rastertiles/voyager/0/0/0.png',
-    'https://tile.openstreetmap.de/0/0/0.png',
   ]) {
     assert.ok(allows(csp.connectDomains, url), `connect-src allows ${url}`);
     assert.ok(allows(csp.resourceDomains, url), `img-src allows ${url}`);
