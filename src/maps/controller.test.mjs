@@ -271,6 +271,31 @@ test('Esri construction fallback reports and attributes the source actually rend
   env.controller.destroy();
 });
 
+test('a hung Esri construction that times out still lands on OSM', async () => {
+  const env = publicFixture();
+  env.registry.sources.find(
+    (source) => source.descriptor.id === 'esri-imagery',
+  ).imagery = async () => {
+    const { raceProviderConstruction } =
+      await import('./providerConstruction.js');
+    return raceProviderConstruction(new Promise(() => {}), {
+      timeoutMs: 40,
+      label: 'Esri World Imagery metadata',
+    });
+  };
+  const started = Date.now();
+  await env.controller.setStack('esri-imagery');
+  assert.ok(Date.now() - started < 1_000);
+  assert.equal(env.controller.getActiveId(), 'osm');
+  assert.equal(
+    env.controller.getState().lastError,
+    'Esri Satellite is unavailable; using OSM',
+  );
+  assert.equal(env.imagery[0].provider, env.providers.get('osm'));
+  assert.equal(env.viewer.scene.globe.show, true);
+  env.controller.destroy();
+});
+
 test('one Esri tile failure stays put, two fall back, and stale errors cannot replace a selection', async () => {
   const env = publicFixture();
   await env.controller.setStack('esri-imagery');

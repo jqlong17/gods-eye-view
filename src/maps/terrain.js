@@ -1,9 +1,20 @@
 import * as Cesium from 'cesium';
 import { createTerrainRetryPolicy } from './terrainRetry.js';
+import {
+  disposeProvider,
+  raceProviderConstruction,
+} from './providerConstruction.js';
 
 /** Re:Earth / Mapterhorn ellipsoidal quantized mesh, CC BY 4.0. */
 export const KEYLESS_TERRAIN_URL =
   'https://terrain.reearth.land/cesium-mesh/ellipsoid';
+
+/**
+ * Same hang class as Esri imagery: Cesium's fromUrl has no deadline, and a
+ * stuck layer.json would leave the boot splash waiting on terrain after
+ * imagery already settled. Bound the wait so flat ellipsoid can take over.
+ */
+export const KEYLESS_TERRAIN_TIMEOUT_MS = 8_000;
 
 /** These factories are lazy: a hidden globe must not trigger terrain loading. */
 export async function createWorldTerrain(accessToken, { signal } = {}) {
@@ -47,14 +58,24 @@ export function createKeylessTerrainResource(
   });
 }
 
-export async function createKeylessTerrain() {
+export async function createKeylessTerrain({
+  signal,
+  timeoutMs = KEYLESS_TERRAIN_TIMEOUT_MS,
+} = {}) {
+  signal?.throwIfAborted();
+  const pending = Cesium.CesiumTerrainProvider.fromUrl(
+    createKeylessTerrainResource(),
+  );
   try {
     return {
-      provider: await Cesium.CesiumTerrainProvider.fromUrl(
-        createKeylessTerrainResource(),
-      ),
+      provider: await raceProviderConstruction(pending, {
+        signal,
+        timeoutMs,
+        label: 'Keyless terrain metadata',
+      }),
     };
   } catch (error) {
+    void Promise.resolve(pending).then(disposeProvider, () => {});
     console.warn(
       '[MapStack] Re:Earth terrain unavailable, falling back to flat ellipsoid terrain:',
       error,
