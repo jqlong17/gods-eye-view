@@ -30,25 +30,29 @@ export const ESRI_WORLD_IMAGERY_CREDIT =
   'Powered by Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
 
 /**
- * Official tile.openstreetmap.org is unreachable from some networks (notably
- * parts of CN). CARTO's OSM-based Voyager raster CDN answers there without a
- * key; keep © OSM + © CARTO on the credit line.
+ * Official tile.openstreetmap.org is unreachable or blocked on some networks
+ * (notably parts of CN). FOSSGIS's tile.openstreetmap.de mirror serves the
+ * same slippy scheme with real map content and CORS, keyless.
+ *
+ * CARTO Voyager (`basemaps.cartocdn.com`) often answers HTTP 200 from CN but
+ * can return near-blank cream tiles from some egress paths — do not prefer it
+ * as the painted basemap without a content probe.
  */
-export const KEYLESS_STREET_TILE_URL =
-  'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
+export const KEYLESS_STREET_TILE_BASE = 'https://tile.openstreetmap.de/';
+
+export const KEYLESS_STREET_TILE_URL = `${KEYLESS_STREET_TILE_BASE}{z}/{x}/{y}.png`;
 
 export const KEYLESS_STREET_CREDIT =
-  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
+  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors';
 
-/** Documented alternate when CARTO is blocked; same OSM slippy scheme. */
+/** Documented alternate CDN (verify tile content — HTTP 200 alone is not enough). */
 export const KEYLESS_STREET_FALLBACK_TILE_URL =
-  'https://tile.openstreetmap.de/{z}/{x}/{y}.png';
+  'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
 
 export function createOsmImagery() {
-  return new Cesium.UrlTemplateImageryProvider({
-    url: KEYLESS_STREET_TILE_URL,
+  return new Cesium.OpenStreetMapImageryProvider({
+    url: KEYLESS_STREET_TILE_BASE,
     credit: KEYLESS_STREET_CREDIT,
-    maximumLevel: 19,
   });
 }
 
@@ -71,7 +75,7 @@ function isAbortError(error) {
 /**
  * Confirm one World Imagery XYZ tile answers before committing to the
  * template provider. A hung or failed probe leaves constructionFallback free
- * to take OSM (CARTO).
+ * to take OSM (tile.openstreetmap.de).
  * @param {{ signal?: AbortSignal, timeoutMs?: number }} [options]
  */
 export async function probeEsriWorldImageryTile({
@@ -130,7 +134,7 @@ export async function createEsriImagery({
     if (isAbortError(error) || signal?.aborted) throw error;
     // Metadata hang/fail is common on some egress paths while XYZ tiles still
     // answer. Probe one tile; if it works, keep satellite. Otherwise reject so
-    // the existing Esri → OSM constructionFallback (CARTO) can settle.
+    // the existing Esri → OSM constructionFallback (osm.de) can settle.
     // `probeTile` is injectable so unit tests never hit the live ArcGIS CDN.
     const tilesOk = await probeTile({
       signal,

@@ -2,8 +2,8 @@
 /**
  * Prove keyless/embed boot leaves the init splash when ArcGIS World Imagery
  * metadata never settles. Intercepts services.arcgisonline.com and hangs those
- * requests (including the XYZ tile probe); expects OSM/CARTO constructionFallback
- * within ~20s without CESIUM_ION_TOKEN.
+ * requests (including the XYZ tile probe); expects OSM (tile.openstreetmap.de)
+ * constructionFallback within ~20s without CESIUM_ION_TOKEN.
  *
  *   node scripts/qa-esri-boot-timeout.mjs
  *   QA_BASE_URL=http://127.0.0.1:4173 node scripts/qa-esri-boot-timeout.mjs
@@ -106,7 +106,7 @@ const checks = [
   ['left Initializing systems splash', leftInit],
   ['loading-screen hidden', Boolean(settled?.hidden)],
   ['active stack is osm', settled?.active === 'osm'],
-  ['keyless street tiles requested (CARTO/OSM)', streetTiles > 0],
+  ['keyless street tiles requested (osm.de/OSM)', streetTiles > 0],
   ['ArcGIS was contacted then hung', arcgisRequests >= 1],
   ['MapStack reported Esri→OSM fallback', fallbackLog],
   ['settled within 20s', elapsed <= 20_000],

@@ -394,14 +394,13 @@ test('hung Esri metadata keeps satellite when World Imagery XYZ still answers', 
   );
 });
 
-test('keyless OSM stack paints CARTO Voyager, not tile.openstreetmap.org', () => {
+test('keyless OSM stack paints FOSSGIS osm.de, not tile.openstreetmap.org', () => {
   const provider = createOsmImagery();
-  assert.ok(provider instanceof Cesium.UrlTemplateImageryProvider);
+  assert.ok(provider instanceof Cesium.OpenStreetMapImageryProvider);
   assert.equal(provider.url, KEYLESS_STREET_TILE_URL);
-  assert.match(provider.url, /basemaps\.cartocdn\.com/);
+  assert.match(provider.url, /tile\.openstreetmap\.de/);
   assert.doesNotMatch(provider.url, /tile\.openstreetmap\.org/);
   assert.match(KEYLESS_STREET_CREDIT, /OpenStreetMap/);
-  assert.match(KEYLESS_STREET_CREDIT, /CARTO/);
 });
 
 test('Esri imagery construction honors abort before the metadata deadline', async (t) => {
