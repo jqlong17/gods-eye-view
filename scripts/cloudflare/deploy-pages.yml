@@ -1,0 +1,60 @@
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Build and deploy Cloudflare Pages
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.14.0"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max_old_space_size=8192
+          # Static Pages demo: no server-side API keys. Leave Cesium/Maps tokens unset.
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=gods-eye-view --branch=main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: "4.120.0"
+
+      - name: Production smoke
+        run: |
+          set -e
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' https://gods-eye-view-6s1.pages.dev/ || true)
+            if [ "$code" = "200" ]; then
+              echo "ok status=$code"
+              break
+            fi
+            echo "retry $i status=$code"
+            sleep 8
+          done
+          test "$(curl -sS -o /dev/null -w '%{http_code}' https://gods-eye-view-6s1.pages.dev/)" = "200"
