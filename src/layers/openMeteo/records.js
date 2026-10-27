@@ -39,8 +39,7 @@ function asPoint(entry, fallback) {
     weatherCode: Number.isFinite(weatherCode) ? weatherCode : null,
     windKmh: Number.isFinite(windKmh) ? windKmh : null,
     windDir: Number.isFinite(windDir) ? windDir : null,
-    observedAt:
-      typeof current?.time === 'string' ? `${current.time}Z` : null,
+    observedAt: typeof current?.time === 'string' ? `${current.time}Z` : null,
   };
 }
 

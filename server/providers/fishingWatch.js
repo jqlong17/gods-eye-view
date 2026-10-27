@@ -1,8 +1,7 @@
 import { readResponseJsonCapped, coalesceProxyRequest } from './common/http.js';
 import { makeRateLimiter, clientKey } from './common/rate-limit.js';
 
-const EVENTS =
-  'https://gateway.api.globalfishingwatch.org/v3/events';
+const EVENTS = 'https://gateway.api.globalfishingwatch.org/v3/events';
 const CACHE_MS = 10 * 60_000;
 const CACHE_MAX = 32;
 const MAX_RESPONSE_BYTES = 4 * 1024 * 1024;
@@ -10,7 +9,9 @@ const TIMEOUT_MS = 25_000;
 
 function apiToken() {
   return String(
-    process.env.GFW_API_TOKEN || process.env.GLOBAL_FISHING_WATCH_API_TOKEN || '',
+    process.env.GFW_API_TOKEN ||
+      process.env.GLOBAL_FISHING_WATCH_API_TOKEN ||
+      '',
   ).trim();
 }
 
@@ -161,12 +162,7 @@ export function fishingWatchProxy({
             east: Number(url.searchParams.get('east')),
             north: Number(url.searchParams.get('north')),
           };
-          const id = [
-            view.west,
-            view.south,
-            view.east,
-            view.north,
-          ]
+          const id = [view.west, view.south, view.east, view.north]
             .map((n) => (Number.isFinite(n) ? n.toFixed(1) : 'x'))
             .join(',');
           const hit = cache.get(id);

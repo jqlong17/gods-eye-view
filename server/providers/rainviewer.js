@@ -29,7 +29,8 @@ export function rainViewerProxy({
     }
     const payload = await readResponseJsonCapped(response, MAX_BYTES, signal);
     const past = payload?.radar?.past;
-    const frame = Array.isArray(past) && past.length ? past[past.length - 1] : null;
+    const frame =
+      Array.isArray(past) && past.length ? past[past.length - 1] : null;
     if (!payload?.host || !frame?.path) throw new Error('invalid_snapshot');
     mem = {
       fetchedAt: now(),

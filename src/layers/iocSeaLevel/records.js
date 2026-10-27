@@ -33,9 +33,7 @@ export function normalizeIocSnapshot(payload) {
       lat,
       lon,
       name,
-      label: Number.isFinite(value)
-        ? `${name} · ${value.toFixed(2)} m`
-        : name,
+      label: Number.isFinite(value) ? `${name} · ${value.toFixed(2)} m` : name,
       value: Number.isFinite(value) ? value : null,
       country,
       color: '#219ebc',

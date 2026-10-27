@@ -14,7 +14,10 @@ export function createOpenMeteoSource({
         !view ||
         ![view.west, view.south, view.east, view.north].every(Number.isFinite)
       ) {
-        return { rows: [], emptyMessage: msg('Move the camera to sample weather') };
+        return {
+          rows: [],
+          emptyMessage: msg('Move the camera to sample weather'),
+        };
       }
       const params = new URLSearchParams({
         west: String(view.west),
@@ -26,8 +29,7 @@ export function createOpenMeteoSource({
         signal,
         cache: 'no-store',
       });
-      if (!response.ok)
-        throw new Error(`Open-Meteo HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`Open-Meteo HTTP ${response.status}`);
       const payload = await readResponseJsonCapped(response, MAX_BYTES, signal);
       signal?.throwIfAborted();
       if (!Array.isArray(payload?.rows))

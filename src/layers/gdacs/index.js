@@ -17,7 +17,11 @@ export function createGdacsLayer(options) {
     },
     labelFor: (row) => row.label || row.name,
     priorityFor(row) {
-      return row.alertlevel === 'Red' ? 300 : row.alertlevel === 'Orange' ? 200 : 100;
+      return row.alertlevel === 'Red'
+        ? 300
+        : row.alertlevel === 'Orange'
+          ? 200
+          : 100;
     },
     ...options,
   });

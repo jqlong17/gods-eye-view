@@ -15,7 +15,9 @@ export function normalizeOurAirportsSnapshot(payload) {
     const lat = Number(item?.lat ?? item?.latitude_deg);
     const lon = Number(item?.lon ?? item?.longitude_deg);
     const name =
-      typeof item?.name === 'string' && item.name.trim() ? item.name.trim() : null;
+      typeof item?.name === 'string' && item.name.trim()
+        ? item.name.trim()
+        : null;
     if (
       !id ||
       !name ||
@@ -88,7 +90,8 @@ export function parseOurAirportsCsv(text) {
     const lon = Number(cells[index.longitude_deg]);
     const id = cells[index.id];
     const name = cells[index.name];
-    if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+    if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lon))
+      continue;
     rows.push({
       id,
       type,

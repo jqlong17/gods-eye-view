@@ -1,5 +1,8 @@
 /** Downsample OVATION aurora grid cells above a probability threshold. */
-export function normalizeAuroraSnapshot(payload, { threshold = 20, stride = 4 } = {}) {
+export function normalizeAuroraSnapshot(
+  payload,
+  { threshold = 20, stride = 4 } = {},
+) {
   const coords = payload?.coordinates;
   if (!Array.isArray(coords)) return null;
   const rows = [];
@@ -25,8 +28,7 @@ export function normalizeAuroraSnapshot(payload, { threshold = 20, stride = 4 } 
       name: `Aurora ${Math.round(aurora)}%`,
       label: `${Math.round(aurora)}%`,
       aurora,
-      color:
-        aurora >= 60 ? '#c1121f' : aurora >= 40 ? '#ff6b35' : '#90be6d',
+      color: aurora >= 60 ? '#c1121f' : aurora >= 40 ? '#ff6b35' : '#90be6d',
       radiusM: 18_000,
     });
   }

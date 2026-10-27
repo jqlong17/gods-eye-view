@@ -186,8 +186,7 @@ export const DATA_CREDITS = [
   },
   {
     key: 'open-meteo-layer',
-    html:
-      'Weather samples: <a href="https://open-meteo.com/en/licence" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a> (CC BY 4.0)',
+    html: 'Weather samples: <a href="https://open-meteo.com/en/licence" target="_blank" rel="noopener">Weather data by Open-Meteo.com</a> (CC BY 4.0)',
   },
   {
     key: 'gdacs',

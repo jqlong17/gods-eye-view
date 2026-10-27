@@ -2,8 +2,7 @@ import { readResponseJsonCapped, coalesceProxyRequest } from './common/http.js';
 import { makeRateLimiter, clientKey } from './common/rate-limit.js';
 import { normalizeAuroraSnapshot } from '../../src/layers/swpcAurora/records.js';
 
-const URL =
-  'https://services.swpc.noaa.gov/json/ovation_aurora_latest.json';
+const URL = 'https://services.swpc.noaa.gov/json/ovation_aurora_latest.json';
 const CACHE_MS = 10 * 60_000;
 const MAX_BYTES = 2 * 1024 * 1024;
 

@@ -193,15 +193,11 @@ export const LAYER_SOURCE_META = Object.freeze({
 /** Resolve source metadata for a layer id, falling back to its declared source. */
 export function layerSourceMeta(layer) {
   const id = layer?.id;
-  const known = id && Object.hasOwn(LAYER_SOURCE_META, id)
-    ? LAYER_SOURCE_META[id]
-    : null;
+  const known =
+    id && Object.hasOwn(LAYER_SOURCE_META, id) ? LAYER_SOURCE_META[id] : null;
   const sourceId =
     layer?.sourceId || known?.sourceId || (id ? String(id) : 'unknown');
   const sourceLabel =
-    layer?.sourceLabel ||
-    known?.sourceLabel ||
-    layer?.source ||
-    sourceId;
+    layer?.sourceLabel || known?.sourceLabel || layer?.source || sourceId;
   return { sourceId, sourceLabel };
 }

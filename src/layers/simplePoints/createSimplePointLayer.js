@@ -196,7 +196,8 @@ export function createSimplePointLayer({
           .slice()
           .sort(
             (a, b) =>
-              b.priority - a.priority || String(a.id).localeCompare(String(b.id)),
+              b.priority - a.priority ||
+              String(a.id).localeCompare(String(b.id)),
           )
           .slice(0, overlayCohortLimit);
         overlayHost.setEntries(overlaySourceId, capped, {
@@ -232,9 +233,7 @@ export function createSimplePointLayer({
         lastUpdate: _lastUpdate,
         keyRequired: _keyRequired,
         // English data for the panel / HUD; presentation translates.
-        error: _keyRequired
-          ? msg('KEY REQUIRED')
-          : _lastError || _emptyMessage,
+        error: _keyRequired ? msg('KEY REQUIRED') : _lastError || _emptyMessage,
       };
     },
   };

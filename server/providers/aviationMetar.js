@@ -101,7 +101,8 @@ export function aviationMetarProxy({
           );
           const body = await promise;
           cache.set(box, body);
-          while (cache.size > CACHE_MAX) cache.delete(cache.keys().next().value);
+          while (cache.size > CACHE_MAX)
+            cache.delete(cache.keys().next().value);
           res.statusCode = 200;
           res.setHeader('X-Feed-Source', 'Aviation Weather Center');
           res.end(JSON.stringify(body));

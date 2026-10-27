@@ -8,7 +8,11 @@ export function openaqBandFromPm25(ugm3) {
   if (v <= 35.4)
     return { id: 'moderate', label: msg('Moderate'), color: '#ffd43b' };
   if (v <= 55.4)
-    return { id: 'high', label: msg('Unhealthy for sensitive'), color: '#ff6b35' };
+    return {
+      id: 'high',
+      label: msg('Unhealthy for sensitive'),
+      color: '#ff6b35',
+    };
   return { id: 'very-high', label: msg('Unhealthy'), color: '#c1121f' };
 }
 

@@ -24,9 +24,7 @@ export function createUnavailableStubLayer({
   let _request = null;
 
   const missingMessage = () =>
-    envVar
-      ? msg(`${envVar} is not set`)
-      : reason || msg('Feed unavailable');
+    envVar ? msg(`${envVar} is not set`) : reason || msg('Feed unavailable');
 
   return {
     id,
@@ -131,8 +129,7 @@ export function createUnavailableStubSource({
       signal?.throwIfAborted();
       if (response.status === 503 && payload?.error === 'no_key')
         return { keyRequired: true };
-      if (!response.ok)
-        throw new Error(`HTTP ${response.status}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return {
         rows: Array.isArray(payload?.rows) ? payload.rows : [],
         emptyMessage: payload?.emptyMessage || permanentReason,
