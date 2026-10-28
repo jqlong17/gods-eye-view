@@ -1,8 +1,11 @@
 /*
   X-Content-Type-Options: nosniff
-  # Allow onto-demo (and other Pages apps) to iframe this globe; omit X-Frame-Options
-  # so CSP frame-ancestors is the sole framing control (static Pages cannot key off ?embed=1).
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval' blob: https://www.youtube.com https://connect.facebook.net https://platform.twitter.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' blob: data: https: wss: ws:; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' blob: https://www.youtube-nocookie.com https://www.youtube.com https://www.facebook.com https://platform.twitter.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://onto-demo.pages.dev https://*.pages.dev
+  # Allow onto-demo (and other Pages apps) plus local onto Bot to iframe this globe;
+  # omit X-Frame-Options so CSP frame-ancestors is the sole framing control
+  # (static Pages cannot key off ?embed=1).
+  # Local: CSP host-source port-part may be "*" (Level 3); also list :9072 explicitly
+  # for the onto Bot default. Browsers that ignore port wildcards still match :9072.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-eval' blob: https://www.youtube.com https://connect.facebook.net https://platform.twitter.com https://maps.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: https:; connect-src 'self' blob: data: https: wss: ws:; worker-src 'self' blob:; child-src 'self' blob:; frame-src 'self' blob: https://www.youtube-nocookie.com https://www.youtube.com https://www.facebook.com https://platform.twitter.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://onto-demo.pages.dev https://*.pages.dev http://127.0.0.1:9072 http://localhost:9072 http://127.0.0.1:* http://localhost:*
 
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
